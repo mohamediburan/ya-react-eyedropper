@@ -9,10 +9,7 @@ export const EyeDropper: FC<PropsWithChildren<EyeDropperProps>> = (props) => {
 
   const [pickingFromDocument, setPickingFromDocument] = useState(false);
   const eyeDropper = useMemo(() => new window.EyeDropper(), []);
-  const [abortController, abortSignal] = useMemo((): [
-    AbortController,
-    AbortSignal
-  ] => {
+  const [abortController, abortSignal] = useMemo((): [AbortController, AbortSignal] => {
     const controller = new window.AbortController();
     const signal = controller.signal;
     return [controller, signal];
@@ -30,7 +27,7 @@ export const EyeDropper: FC<PropsWithChildren<EyeDropperProps>> = (props) => {
         cancelPickColor();
       }
     },
-    [pickingFromDocument, cancelPickColor]
+    [pickingFromDocument, cancelPickColor],
   );
 
   useEffect(() => {
@@ -44,18 +41,20 @@ export const EyeDropper: FC<PropsWithChildren<EyeDropperProps>> = (props) => {
     eyeDropper
       .open({ signal: abortSignal })
       .then(({ sRGBHex }) => {
-          const color: Color = {
-              hex: sRGBHex,
-          };
-          onPick(color);
+        const color: Color = {
+          hex: sRGBHex,
+        };
+        onPick(color);
       })
       .catch(() => {
-          onPickCancel();
+        onPickCancel();
       });
   }, [eyeDropper, abortSignal, onPick, onPickCancel]);
 
   useEffect(() => {
-    on && onPickStart();
+    if (on) {
+      onPickStart();
+    }
   }, [on, onPickStart]);
 
   return <>{children}</>;

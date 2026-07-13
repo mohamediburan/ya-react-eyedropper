@@ -6,7 +6,7 @@ export type EyeDropperProps = {
   on: boolean;
   onPick: (color: Color) => unknown;
   onPickCancel: () => unknown;
-}
+};
 
 interface ColorSelectionOptions {
   signal?: AbortSignal;

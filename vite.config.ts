@@ -9,7 +9,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       name: "reactEyedropper",
-      fileName: "index"
+      fileName: "index",
     },
     rollupOptions: {
       external: ["react", "react-dom", "react/jsx-runtime"],

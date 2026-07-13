@@ -1,28 +1,29 @@
-***yet Another react-eyedropper*** (ya-react-eyedropper)
+_**yet Another react-eyedropper**_ (ya-react-eyedropper)
 
 A fully controlled simple react component around [eyedropper-polyfill](https://github.com/iam-medvedev/eyedropper-polyfill).
 
 Installation:
+
 ```
 npm install ya-react-eyedropper --save
 ```
 
 ### [Demo](https://stackblitz.com/edit/vitejs-vite-2awgpp?file=src%2FApp.tsx)
 
-### Props:  
+### Props:
 
-*on: boolean*  
+_on: boolean_  
 --enables the eyedropper
 
-*onPick: (color: Color) => unknown*  
+_onPick: (color: Color) => unknown_  
 -- returns color object. currently only supports hex.
 
-*onPickCancel: () => unknown*  
+_onPickCancel: () => unknown_  
 -- called when eyedropper gets cancelled by clicking esc. similar to native eyedropper of chrome.
 
-***Note:*** Cancel the eyedropper by clicking on keyboard escape button.
+_**Note:**_ Cancel the eyedropper by clicking on keyboard escape button.
 
-### Usage  
+### Usage
 
 ```
 import { useState } from "react";
@@ -50,5 +51,5 @@ export default App;
 ```
 
 ### Licence
-[MIT](https://github.com/mohamediburan/ya-react-eyedropper/blob/main/LICENSE)
 
+[MIT](https://github.com/mohamediburan/ya-react-eyedropper/blob/main/LICENSE)
