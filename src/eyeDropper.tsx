@@ -1,61 +1,56 @@
-import { useEffect, useMemo, useState, useCallback, FC, PropsWithChildren } from "react";
+import React, { useEffect, useRef } from "react";
+import { EyeDropperProps } from "./types";
+import { useEyeDropper } from "./useEyeDropper";
 
-import "eyedropper-polyfill";
+export const EyeDropper: React.FC<EyeDropperProps> = ({
+  on,
+  onPick,
+  onPickCancel,
+  onError,
+  strategy,
+  magnifier,
+  children,
+}) => {
+  const { open, close, isPicking } = useEyeDropper({
+    strategy,
+    magnifier,
+    onError,
+  });
 
-import { Color, EyeDropperProps } from "./types";
-
-export const EyeDropper: FC<PropsWithChildren<EyeDropperProps>> = (props) => {
-  const { on, onPick, onPickCancel, children } = props;
-
-  const [pickingFromDocument, setPickingFromDocument] = useState(false);
-  const eyeDropper = useMemo(() => new window.EyeDropper(), []);
-  const [abortController, abortSignal] = useMemo((): [AbortController, AbortSignal] => {
-    const controller = new window.AbortController();
-    const signal = controller.signal;
-    return [controller, signal];
-  }, []);
-
-  const cancelPickColor = useCallback(() => {
-    abortController.abort();
-    setPickingFromDocument(false);
-    onPickCancel();
-  }, [abortController, setPickingFromDocument, onPickCancel]);
-
-  const exitPickingByEsc = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.code === "Escape" && pickingFromDocument) {
-        cancelPickColor();
-      }
-    },
-    [pickingFromDocument, cancelPickColor],
-  );
+  // Use refs to always have the latest callbacks without triggering re-effects
+  const onPickRef = useRef(onPick);
+  const onPickCancelRef = useRef(onPickCancel);
+  const onErrorRef = useRef(onError);
 
   useEffect(() => {
-    if (pickingFromDocument) {
-      document.addEventListener("keydown", exitPickingByEsc);
-    }
-    return () => document.removeEventListener("keydown", exitPickingByEsc);
-  }, [pickingFromDocument, exitPickingByEsc]);
-
-  const onPickStart = useCallback(() => {
-    eyeDropper
-      .open({ signal: abortSignal })
-      .then(({ sRGBHex }) => {
-        const color: Color = {
-          hex: sRGBHex,
-        };
-        onPick(color);
-      })
-      .catch(() => {
-        onPickCancel();
-      });
-  }, [eyeDropper, abortSignal, onPick, onPickCancel]);
+    onPickRef.current = onPick;
+    onPickCancelRef.current = onPickCancel;
+    onErrorRef.current = onError;
+  }, [onPick, onPickCancel, onError]);
 
   useEffect(() => {
-    if (on) {
-      onPickStart();
+    if (on && !isPicking) {
+      open()
+        .then((color) => {
+          if (onPickRef.current) {
+            onPickRef.current(color);
+          }
+        })
+        .catch((error) => {
+          if (error.code === "ABORTED" && onPickCancelRef.current) {
+            onPickCancelRef.current();
+          } else if (error.code !== "ABORTED") {
+            // Already handled by onError prop passed to hook, but we can do fallback logic here
+            // If the user didn't provide onError, we fall back to onPickCancel for backward compatibility
+            if (!onErrorRef.current && onPickCancelRef.current) {
+              onPickCancelRef.current();
+            }
+          }
+        });
+    } else if (!on && isPicking) {
+      close();
     }
-  }, [on, onPickStart]);
+  }, [on, isPicking, open, close]);
 
   return <>{children}</>;
 };
