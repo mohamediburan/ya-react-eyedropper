@@ -34,9 +34,17 @@ export class Magnifier {
     this.ctx = ctx;
 
     const size = this.options.radius * 2;
-    // Add extra padding to the canvas for the color preview swatch
-    this.canvas.width = size;
-    this.canvas.height = size + (this.options.showColorPreview ? 40 : 0);
+    const height = size + (this.options.showColorPreview ? 40 : 0);
+    
+    // Scale for high DPI displays (Retina)
+    const dpr = window.devicePixelRatio || 1;
+    this.canvas.width = size * dpr;
+    this.canvas.height = height * dpr;
+    this.canvas.style.width = `${size}px`;
+    this.canvas.style.height = `${height}px`;
+    
+    this.ctx.scale(dpr, dpr);
+
     Object.assign(this.canvas.style, {
       position: "fixed",
       zIndex: "2147483648", // Above overlay
@@ -105,17 +113,19 @@ export class Magnifier {
     const sx = (this.lastX + (this.isViewportOnly ? 0 : window.scrollX)) * dpr;
     const sy = (this.lastY + (this.isViewportOnly ? 0 : window.scrollY)) * dpr;
 
-    const sourceSize = size / zoom;
+    // The size of the raw pixel area we want to grab from the source canvas
+    const rawSourceSize = (size / zoom) * dpr;
+    
     this.ctx.imageSmoothingEnabled = false; // Important for pixelated look
     this.ctx.drawImage(
       this.originalCanvas,
-      sx - sourceSize / 2,
-      sy - sourceSize / 2,
-      sourceSize,
-      sourceSize,
+      Math.floor(sx - rawSourceSize / 2),
+      Math.floor(sy - rawSourceSize / 2),
+      rawSourceSize,
+      rawSourceSize,
       0,
       0,
-      size,
+      size, // We draw to CSS size because ctx is scaled by dpr
       size,
     );
 

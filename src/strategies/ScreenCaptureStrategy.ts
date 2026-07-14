@@ -145,18 +145,22 @@ export class ScreenCaptureStrategy implements IEyeDropperStrategy {
   private handleMove(clientX: number, clientY: number, offsetX: number = 0, offsetY: number = 0) {
     if (!this.canvasCtx || !this.magnifier) return;
 
+    const targetX = clientX + offsetX;
+    const targetY = clientY + offsetY;
+
     // Track cursor position for keyboard navigation
-    this.cursorX = clientX;
-    this.cursorY = clientY;
+    this.cursorX = targetX;
+    this.cursorY = targetY;
 
     if (!this.magnifier["isVisible"]) {
       this.magnifier.show();
     }
 
     try {
-      const hex = extractPixelColor(this.canvasCtx, clientX, clientY, true);
+      const hex = extractPixelColor(this.canvasCtx, targetX, targetY, true);
       this.magnifier.setCurrentColor(hex);
-      this.magnifier.move(clientX, clientY, offsetX, offsetY);
+      // Pass the target coordinates without re-applying the offset
+      this.magnifier.move(targetX, targetY, 0, 0);
     } catch {
       // Ignore out of bounds
     }
