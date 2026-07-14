@@ -12,7 +12,6 @@ Version 2 is a complete rewrite that introduces a **multi-tiered strategy patter
 
 - **Native First:** Uses the lightweight, native `window.EyeDropper` API on supported browsers (Chrome, Edge).
 - **Intelligent Fallback:** Seamlessly falls back to `CanvasStrategy` (using `@zumer/snapdom`) on browsers without native support (Firefox, Safari, Mobile).
-- **Optional Screen Capture:** An opt-in `ScreenCaptureStrategy` is available for pixel-perfect accuracy when you need it (see [Screen Capture Strategy](#screen-capture-strategy-opt-in) below).
 - **Zero Bundle Bloat:** Fallback strategies and their dependencies are dynamically loaded via `import()` and are **never downloaded** if the browser supports the native API.
 - **Premium UX:** Includes a highly responsive, canvas-based magnifier with a precision crosshair, color swatch preview, and pixel grid.
 - **Rich Color Output:** Returns colors in HEX, RGB, RGBA, and HSL formats.
@@ -98,11 +97,10 @@ The `strategy` prop controls how the eyedropper captures screen content. It acce
 | ------------------ | --------------------------- | ------------------------ | ------------------------- | ---------------------- |
 | `"native"`         | `window.EyeDropper`         | No                       | Perfect (OS-level)        | ~0 KB                  |
 | `"canvas"`         | `@zumer/snapdom` DOM→canvas | No                       | Very high (DOM re-render) | ~46 KB gzipped (lazy)  |
-| `"screen-capture"` | `getDisplayMedia`           | **Yes** (browser dialog) | Perfect (pixel-level)     | ~1.4 KB gzipped (lazy) |
 
 ### Default Behavior (`strategy="auto"`)
 
-By default, the library tries **`native` → `canvas`**. Screen capture is deliberately excluded from the default chain because it triggers an intrusive browser permission dialog ("Share this tab?") that most end users won't expect from a color picker.
+The library defaults to **`native` → `canvas`**.
 
 ```tsx
 // These are equivalent:
@@ -115,9 +113,6 @@ By default, the library tries **`native` → `canvas`**. Screen capture is delib
 Pass an array to define your own order. The library tries each strategy in sequence, silently skipping any that fail or aren't supported:
 
 ```tsx
-// Include screen-capture in the chain (see section below)
-<EyeDropper strategy={["native", "screen-capture", "canvas"]} />
-
 // Force canvas only — useful for testing or when you know native isn't available
 <EyeDropper strategy="canvas" />
 
@@ -125,58 +120,7 @@ Pass an array to define your own order. The library tries each strategy in seque
 <EyeDropper strategy="native" />
 ```
 
----
 
-## Screen Capture Strategy (Opt-in)
-
-The `"screen-capture"` strategy uses the [`getDisplayMedia`](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia) API to capture the actual rendered pixels of the browser tab. It is **not** included in the default `"auto"` chain — you must explicitly opt in.
-
-### When to use it
-
-Use screen capture when you need **pixel-perfect accuracy** that the canvas strategy cannot provide. Specifically:
-
-- **WebGL / `<canvas>` content:** `@zumer/snapdom` (the canvas strategy) works by cloning the DOM and re-rendering it. It cannot capture the contents of WebGL contexts, 2D canvas drawings, or `<video>` elements. Screen capture can.
-- **Complex visual effects:** CSS `backdrop-filter`, `mix-blend-mode` compositing across layers, and other GPU-composited effects may not render identically when the DOM is cloned. Screen capture captures the final composited output exactly as the GPU rendered it.
-- **Third-party iframes with `allow` policies:** If the iframe has a permissive `allow="display-capture"` policy, screen capture can read its pixels. The canvas strategy cannot render cross-origin iframes at all.
-
-### When NOT to use it
-
-- **Consumer-facing apps:** End users will see a browser-native "Share this tab?" dialog, which is confusing and alarming in the context of a color picker. Most users won't understand why a color picker needs screen sharing permissions.
-- **Mobile browsers:** `getDisplayMedia` is not supported on any mobile browser (iOS Safari, Android Chrome). The strategy will be silently skipped.
-- **Privacy-sensitive contexts:** The captured frame contains everything visible on the tab, including sensitive data. While we only extract a single pixel color and discard the frame immediately, the permission dialog itself may raise concerns.
-
-### How to opt in
-
-```tsx
-// Recommended: Include it as a middle step between native and canvas
-const { open } = useEyeDropper({
-  strategy: ["native", "screen-capture", "canvas"],
-});
-
-// Or use it alone
-const { open } = useEyeDropper({
-  strategy: "screen-capture",
-});
-```
-
-### What the user sees
-
-1. The browser shows a **"Share this tab?"** dialog (this is mandatory and cannot be suppressed).
-2. Once the user grants permission, a single video frame is captured and the media stream is immediately stopped.
-3. The magnifier overlay appears and the user can pick a color.
-4. If the user **denies** the permission, the library silently falls through to the next strategy in the chain (if any).
-
-### Browser support
-
-| Browser         | Supported? |
-| --------------- | ---------- |
-| Chrome 72+      | ✅         |
-| Edge 79+        | ✅         |
-| Firefox 66+     | ✅         |
-| Safari 13+      | ✅         |
-| Mobile browsers | ❌         |
-
----
 
 ## API Reference
 
@@ -239,7 +183,7 @@ Passed to the `onError` callback:
 
 ```typescript
 {
-  code: "PERMISSION_DENIED" | "SCREEN_CAPTURE_FAILED" | "CANVAS_RENDER_FAILED"
+  code: "PERMISSION_DENIED" | "CANVAS_RENDER_FAILED"
       | "CANVAS_TAINTED" | "CANVAS_CONTEXT_FAILED" | "NOT_SUPPORTED"
       | "ABORTED" | "UNKNOWN";
   message: string;
@@ -262,9 +206,7 @@ if (error.code === ErrorCodes.CANVAS_TAINTED) {
 ## Known Limitations
 
 - **Canvas strategy & cross-origin iframes:** `@zumer/snapdom` cannot render cross-origin `<iframe>` content. Colors from those areas will appear as the iframe's background color.
-- **Canvas strategy & GPU content:** WebGL canvases, `<video>` elements, and 2D `<canvas>` drawings are not captured by the canvas strategy. Use screen capture for these.
-- **Screen capture & mobile:** `getDisplayMedia` is not available on any mobile browser.
-- **Screen capture & permission:** The browser will always show a "Share this tab" dialog that cannot be suppressed or customized.
+- **Canvas strategy & GPU content:** WebGL canvases, `<video>` elements, and 2D `<canvas>` drawings are not captured by the canvas strategy.
 
 ## License
 

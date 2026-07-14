@@ -13,4 +13,4 @@ export type {
   StrategyName,
 } from "./types";
 export { ErrorCodes } from "./types";
-export { isNativeEyeDropperSupported, isScreenCaptureSupported } from "./utils/support";
+export { isNativeEyeDropperSupported } from "./utils/support";

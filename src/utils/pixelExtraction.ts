@@ -13,10 +13,16 @@ export function extractPixelColor(
 
   const data = canvasCtx.getImageData(px, py, 1, 1).data;
 
-  // Convert Uint8ClampedArray [r, g, b, a] to hex
-  const r = data[0].toString(16).padStart(2, "0");
-  const g = data[1].toString(16).padStart(2, "0");
-  const b = data[2].toString(16).padStart(2, "0");
+  // Composite over white background if pixel is transparent
+  const alpha = data[3] / 255;
+  const rNum = Math.round(data[0] * alpha + 255 * (1 - alpha));
+  const gNum = Math.round(data[1] * alpha + 255 * (1 - alpha));
+  const bNum = Math.round(data[2] * alpha + 255 * (1 - alpha));
+
+  // Convert to hex
+  const r = rNum.toString(16).padStart(2, "0");
+  const g = gNum.toString(16).padStart(2, "0");
+  const b = bNum.toString(16).padStart(2, "0");
 
   return `#${r}${g}${b}`;
 }

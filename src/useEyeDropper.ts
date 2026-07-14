@@ -3,14 +3,10 @@ import { NativeStrategy } from "./strategies/NativeStrategy";
 import { IEyeDropperStrategy } from "./strategies/types";
 import { Color, EyeDropperError, EyeDropperProps, EyeDropperStatus, StrategyName } from "./types";
 import { hexToHsl, hexToRgb, hexToRgba } from "./utils/colorConversion";
-import { isNativeEyeDropperSupported, isScreenCaptureSupported } from "./utils/support";
+import { isNativeEyeDropperSupported } from "./utils/support";
 
 const strategyLoaders: Record<StrategyName, () => Promise<IEyeDropperStrategy>> = {
   native: async () => new NativeStrategy(),
-  "screen-capture": async () => {
-    const { ScreenCaptureStrategy } = await import("./strategies/ScreenCaptureStrategy");
-    return new ScreenCaptureStrategy();
-  },
   canvas: async () => {
     const { CanvasStrategy } = await import("./strategies/CanvasStrategy");
     return new CanvasStrategy();
@@ -31,9 +27,6 @@ function checkChainSupport(chain: StrategyName[]): boolean {
     switch (name) {
       case "native":
         if (isNativeEyeDropperSupported()) return true;
-        break;
-      case "screen-capture":
-        if (isScreenCaptureSupported()) return true;
         break;
       case "canvas":
         return true; // Always supported

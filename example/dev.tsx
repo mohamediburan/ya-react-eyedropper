@@ -5,12 +5,12 @@ import { useEyeDropper, EyeDropper } from "../src/index";
 import "./style.css";
 
 const App = () => {
-  const [selectedStrategy, setSelectedStrategy] = useState<"auto" | "native" | "screen-capture" | "canvas">("auto");
+  const [selectedStrategy, setSelectedStrategy] = useState<"auto" | "native" | "canvas">("auto");
   const [lastColor, setLastColor] = useState<string | null>(null);
 
   // --- Hook Usage ---
   const { open, isSupported, status, activeStrategy } = useEyeDropper({
-    strategy: selectedStrategy,
+    strategy: selectedStrategy as any,
   });
 
   const pickWithHook = async () => {
@@ -38,9 +38,8 @@ const App = () => {
           onChange={(e) => setSelectedStrategy(e.target.value as any)}
           style={{ padding: "8px 12px", borderRadius: 4, border: "1px solid #ccc" }}
         >
-          <option value="auto">Auto (Native → ScreenCapture → Canvas)</option>
+          <option value="auto">Auto (Native → Canvas)</option>
           <option value="native">Native Only</option>
-          <option value="screen-capture">Screen Capture Only</option>
           <option value="canvas">Canvas Only</option>
         </select>
       </div>

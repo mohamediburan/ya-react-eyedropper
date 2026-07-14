@@ -1,4 +1,4 @@
-export type StrategyName = "native" | "screen-capture" | "canvas";
+export type StrategyName = "native" | "canvas";
 export type EyeDropperStrategy = "auto" | StrategyName | StrategyName[];
 export type EyeDropperStatus = "idle" | "capturing" | "picking";
 
@@ -22,7 +22,6 @@ export interface MagnifierOptions {
 
 export type EyeDropperErrorCode =
   | "PERMISSION_DENIED" // getDisplayMedia permission denied
-  | "SCREEN_CAPTURE_FAILED" // getDisplayMedia failed for other reason
   | "CANVAS_RENDER_FAILED" // @zumer/snapdom failed to render DOM
   | "CANVAS_TAINTED" // getImageData blocked due to cross-origin images (SecurityError)
   | "CANVAS_CONTEXT_FAILED" // Could not get 2D context
@@ -32,7 +31,6 @@ export type EyeDropperErrorCode =
 
 export const ErrorCodes: Record<EyeDropperErrorCode, EyeDropperErrorCode> = {
   PERMISSION_DENIED: "PERMISSION_DENIED",
-  SCREEN_CAPTURE_FAILED: "SCREEN_CAPTURE_FAILED",
   CANVAS_RENDER_FAILED: "CANVAS_RENDER_FAILED",
   CANVAS_TAINTED: "CANVAS_TAINTED",
   CANVAS_CONTEXT_FAILED: "CANVAS_CONTEXT_FAILED",

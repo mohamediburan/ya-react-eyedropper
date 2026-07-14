@@ -133,6 +133,10 @@ export class Magnifier {
     const offsetY = (py - startY) + 0.5;
     this.ctx.translate(-offsetX, -offsetY);
 
+    // Draw white background so transparent pixels don't bleed the underlying DOM
+    this.ctx.fillStyle = "#ffffff";
+    this.ctx.fillRect(0, 0, cropPixels, cropPixels);
+
     // Draw the integer crop
     this.ctx.drawImage(
       this.originalCanvas,

@@ -120,22 +120,19 @@ export class CanvasStrategy implements IEyeDropperStrategy {
   private handleMove(clientX: number, clientY: number, offsetX: number = 0, offsetY: number = 0) {
     if (!this.canvasCtx || !this.magnifier) return;
 
-    const targetX = clientX + offsetX;
-    const targetY = clientY + offsetY;
-
     // Track cursor position for keyboard navigation
-    this.cursorX = targetX;
-    this.cursorY = targetY;
+    this.cursorX = clientX;
+    this.cursorY = clientY;
 
     if (!this.magnifier["isVisible"]) {
       this.magnifier.show();
     }
 
     try {
-      const hex = extractPixelColor(this.canvasCtx, targetX, targetY, false);
+      const hex = extractPixelColor(this.canvasCtx, clientX, clientY, false);
       this.magnifier.setCurrentColor(hex);
-      // Pass the target coordinates without re-applying the offset
-      this.magnifier.move(targetX, targetY, 0, 0);
+      // The magnifier visually offsets itself, but zooms in on clientX/Y
+      this.magnifier.move(clientX, clientY, offsetX, offsetY);
     } catch (err) {
       // CORS tainted canvas will throw here
       if (err instanceof DOMException && err.name === "SecurityError") {
