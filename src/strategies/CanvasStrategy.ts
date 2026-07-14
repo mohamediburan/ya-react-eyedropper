@@ -79,6 +79,9 @@ export class CanvasStrategy implements IEyeDropperStrategy {
 
     this.options?.onReady?.();
     this.bindEvents();
+
+    // Initialize the color at the starting cursor position
+    this.handleMove(this.cursorX, this.cursorY);
   }
 
   private bindEvents() {

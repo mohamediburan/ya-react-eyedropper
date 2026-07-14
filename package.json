@@ -17,6 +17,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "example": "vite example",
     "build": "tsc && vite build",
     "lint": "oxlint .",
     "format": "oxfmt .",

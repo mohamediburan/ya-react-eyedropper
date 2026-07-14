@@ -180,7 +180,7 @@ const { open } = useEyeDropper({
 
 ### `useEyeDropper(options?)` Hook
 
-Returns `{ open, close, isSupported, isPicking, status }`.
+Returns `{ open, close, isSupported, isPicking, status, activeStrategy }`.
 
 **Options:**
 
@@ -192,13 +192,14 @@ Returns `{ open, close, isSupported, isPicking, status }`.
 
 **Return values:**
 
-| Value         | Type                   | Description                                                                                                        |
-| ------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `open`        | `() => Promise<Color>` | Opens the eyedropper. Resolves with a `Color` when the user picks.                                                 |
-| `close`       | `() => void`           | Aborts the active eyedropper session.                                                                              |
-| `isSupported` | `boolean`              | Whether the configured strategy is supported in the current browser.                                               |
-| `isPicking`   | `boolean`              | `true` when the eyedropper is active (either capturing or picking). Derived from `status`.                         |
-| `status`      | `EyeDropperStatus`     | `"idle"` → `"capturing"` → `"picking"` → `"idle"`. Use this to show loading spinners during the DOM capture phase. |
+| Value            | Type                   | Description                                                                                                        |
+| ---------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `open`           | `() => Promise<Color>` | Opens the eyedropper. Resolves with a `Color` when the user picks.                                                 |
+| `close`          | `() => void`           | Aborts the active eyedropper session.                                                                              |
+| `isSupported`    | `boolean`              | Whether at least one strategy in the configured chain is supported in the current browser.                         |
+| `isPicking`      | `boolean`              | `true` when the eyedropper is active (either capturing or picking). Derived from `status`.                         |
+| `status`         | `EyeDropperStatus`     | `"idle"` → `"capturing"` → `"picking"` → `"idle"`. Use this to show loading spinners during the DOM capture phase. |
+| `activeStrategy` | `StrategyName \| null` | The name of the strategy that was used for the last successful pick. `null` when idle or before first pick.        |
 
 ### `Color` Object
 
@@ -241,6 +242,18 @@ Passed to the `onError` callback:
       | "ABORTED" | "UNKNOWN";
   message: string;
   originalError?: Error;
+}
+```
+
+### `ErrorCodes` Constant
+
+A typed constant object for comparing error codes without string typos:
+
+```typescript
+import { ErrorCodes } from "ya-react-eyedropper";
+
+if (error.code === ErrorCodes.CANVAS_TAINTED) {
+  // handle tainted canvas
 }
 ```
 
