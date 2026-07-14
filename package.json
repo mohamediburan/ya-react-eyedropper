@@ -22,23 +22,32 @@
     "build": "tsc && vite build",
     "lint": "oxlint .",
     "format": "oxfmt .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@zumer/snapdom": "^2.15.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20.11.28",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.0.0",
     "@typescript/typescript6": "^6.0.0",
+    "jsdom": "^29.1.1",
     "oxfmt": "^0.58.0",
     "oxlint": "^1.73.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "typescript": "^7.0.2",
     "vite": "^8.1.4",
-    "vite-plugin-dts": "^5.0.3"
+    "vite-plugin-dts": "^5.0.3",
+    "vitest": "^4.1.10"
   },
   "peerDependencies": {
     "react": ">=18.2.0",
