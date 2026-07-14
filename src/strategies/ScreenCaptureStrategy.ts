@@ -16,6 +16,8 @@ export class ScreenCaptureStrategy implements IEyeDropperStrategy {
   private stream: MediaStream | null = null;
   private abortHandler: (() => void) | null = null;
   private options?: ColorSelectionOptions & { magnifier?: MagnifierOptions };
+  private cursorX: number = 0;
+  private cursorY: number = 0;
 
   isSupported(): boolean {
     return isScreenCaptureSupported();
@@ -52,6 +54,10 @@ export class ScreenCaptureStrategy implements IEyeDropperStrategy {
   private async start() {
     this.overlay = new Overlay();
     this.overlay.showLoading();
+
+    // Initialize cursor to center of viewport
+    this.cursorX = Math.round(window.innerWidth / 2);
+    this.cursorY = Math.round(window.innerHeight / 2);
 
     try {
       this.stream = await navigator.mediaDevices.getDisplayMedia({
@@ -93,9 +99,10 @@ export class ScreenCaptureStrategy implements IEyeDropperStrategy {
     this.overlay.hideLoading();
     this.magnifier = new Magnifier(this.canvas, {
       ...this.options?.magnifier,
-      isViewportOnly: true
+      isViewportOnly: true,
     });
 
+    this.options?.onReady?.();
     this.bindEvents();
   }
 
@@ -135,6 +142,10 @@ export class ScreenCaptureStrategy implements IEyeDropperStrategy {
   private handleMove(clientX: number, clientY: number, offsetX: number = 0, offsetY: number = 0) {
     if (!this.canvasCtx || !this.magnifier) return;
 
+    // Track cursor position for keyboard navigation
+    this.cursorX = clientX;
+    this.cursorY = clientY;
+
     if (!this.magnifier["isVisible"]) {
       this.magnifier.show();
     }
@@ -148,8 +159,7 @@ export class ScreenCaptureStrategy implements IEyeDropperStrategy {
     }
   }
 
-  private onClick(e: MouseEvent | TouchEvent) {
-    if (e instanceof TouchEvent) e.preventDefault();
+  private pickColor() {
     if (!this.magnifier || !this.resolve) return;
 
     const hex = this.magnifier["currentHex"];
@@ -160,9 +170,46 @@ export class ScreenCaptureStrategy implements IEyeDropperStrategy {
     }
   }
 
+  private onClick(e: MouseEvent | TouchEvent) {
+    if (e instanceof TouchEvent) e.preventDefault();
+    this.pickColor();
+  }
+
   private onKeyDown(e: KeyboardEvent) {
     if (e.key === "Escape") {
       this.cleanup(new DOMException("Aborted", "AbortError"));
+      return;
+    }
+
+    // Arrow key navigation: move cursor 1px (or 10px with Shift)
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+      e.preventDefault();
+      const step = e.shiftKey ? 10 : 1;
+      switch (e.key) {
+        case "ArrowUp":
+          this.cursorY -= step;
+          break;
+        case "ArrowDown":
+          this.cursorY += step;
+          break;
+        case "ArrowLeft":
+          this.cursorX -= step;
+          break;
+        case "ArrowRight":
+          this.cursorX += step;
+          break;
+      }
+      // Clamp to viewport bounds
+      this.cursorX = Math.max(0, Math.min(this.cursorX, window.innerWidth - 1));
+      this.cursorY = Math.max(0, Math.min(this.cursorY, window.innerHeight - 1));
+      this.handleMove(this.cursorX, this.cursorY);
+      return;
+    }
+
+    // Enter or Space to pick the color at the current cursor position
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      this.pickColor();
     }
   }
 

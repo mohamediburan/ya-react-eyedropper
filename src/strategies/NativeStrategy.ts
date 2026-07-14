@@ -11,6 +11,7 @@ export class NativeStrategy implements IEyeDropperStrategy {
       throw new Error("NOT_SUPPORTED");
     }
     const eyeDropper = new (window as any).EyeDropper();
+    options?.onReady?.();
     return eyeDropper.open(options);
   }
 }

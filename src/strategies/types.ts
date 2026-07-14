@@ -4,6 +4,7 @@ export interface ColorSelectionResult {
 
 export interface ColorSelectionOptions {
   signal?: AbortSignal;
+  onReady?: () => void;
 }
 
 export interface IEyeDropperStrategy {

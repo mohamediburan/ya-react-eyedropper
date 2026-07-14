@@ -2,7 +2,7 @@ export function extractPixelColor(
   canvasCtx: CanvasRenderingContext2D,
   clientX: number,
   clientY: number,
-  isViewportOnly: boolean = false
+  isViewportOnly: boolean = false,
 ): string {
   // Correct for device pixel ratio and scroll position
   const x = (clientX + (isViewportOnly ? 0 : window.scrollX)) * window.devicePixelRatio;

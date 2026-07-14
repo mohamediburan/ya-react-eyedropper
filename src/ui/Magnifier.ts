@@ -12,7 +12,10 @@ export class Magnifier {
   private currentHex: string = "";
   private isViewportOnly: boolean = false;
 
-  constructor(originalCanvas: HTMLCanvasElement, options?: MagnifierOptions & { isViewportOnly?: boolean }) {
+  constructor(
+    originalCanvas: HTMLCanvasElement,
+    options?: MagnifierOptions & { isViewportOnly?: boolean },
+  ) {
     this.originalCanvas = originalCanvas;
     this.isViewportOnly = options?.isViewportOnly ?? false;
     this.options = {

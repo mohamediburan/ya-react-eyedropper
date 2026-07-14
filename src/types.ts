@@ -1,5 +1,6 @@
 export type StrategyName = "native" | "screen-capture" | "canvas";
 export type EyeDropperStrategy = "auto" | StrategyName | StrategyName[];
+export type EyeDropperStatus = "idle" | "capturing" | "picking";
 
 export interface Color {
   sRGBHex: string;
@@ -28,6 +29,17 @@ export type EyeDropperErrorCode =
   | "NOT_SUPPORTED" // No strategy available
   | "ABORTED" // User cancelled via signal or Escape
   | "UNKNOWN";
+
+export const ErrorCodes: Record<EyeDropperErrorCode, EyeDropperErrorCode> = {
+  PERMISSION_DENIED: "PERMISSION_DENIED",
+  SCREEN_CAPTURE_FAILED: "SCREEN_CAPTURE_FAILED",
+  CANVAS_RENDER_FAILED: "CANVAS_RENDER_FAILED",
+  CANVAS_TAINTED: "CANVAS_TAINTED",
+  CANVAS_CONTEXT_FAILED: "CANVAS_CONTEXT_FAILED",
+  NOT_SUPPORTED: "NOT_SUPPORTED",
+  ABORTED: "ABORTED",
+  UNKNOWN: "UNKNOWN",
+} as const;
 
 export type EyeDropperError = {
   code: EyeDropperErrorCode;
