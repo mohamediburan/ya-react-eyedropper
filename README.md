@@ -2,6 +2,8 @@
 
 _**yet Another react-eyedropper**_ (ya-react-eyedropper)
 
+[![Live Demo](https://img.shields.io/badge/Live%20Playground-000000?style=for-the-badge&logo=react)](https://mohamediburan.github.io/ya-react-eyedropper/)
+
 A fully controlled React Hook and Component for a robust, cross-browser Eyedropper API.
 
 Version 2 is a complete rewrite that introduces a **multi-tiered strategy pattern**, a beautiful custom Magnifier UI, and drops the old `eyedropper-polyfill`. It dynamically falls back across pixel-perfect capturing strategies to ensure it works on every device, without inflating your bundle size.
