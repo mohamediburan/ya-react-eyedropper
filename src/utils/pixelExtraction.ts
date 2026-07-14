@@ -4,9 +4,16 @@ export function extractPixelColor(
   clientY: number,
   isViewportOnly: boolean = false,
 ): string {
-  // Correct for device pixel ratio and scroll position
-  const x = (clientX + (isViewportOnly ? 0 : window.scrollX)) * window.devicePixelRatio;
-  const y = (clientY + (isViewportOnly ? 0 : window.scrollY)) * window.devicePixelRatio;
+  const scrollX = typeof window.visualViewport !== 'undefined' && window.visualViewport !== null ? window.visualViewport.pageLeft : window.scrollX;
+  const scrollY = typeof window.visualViewport !== 'undefined' && window.visualViewport !== null ? window.visualViewport.pageTop : window.scrollY;
+
+  // Calculate actual scaling factor of the canvas (mobile browsers may downscale huge canvases to save memory)
+  const actualScaleX = canvasCtx.canvas.width / document.documentElement.scrollWidth;
+  const actualScaleY = canvasCtx.canvas.height / document.documentElement.scrollHeight;
+
+  // Correct for actual canvas scale and scroll position
+  const x = (clientX + (isViewportOnly ? 0 : scrollX)) * actualScaleX;
+  const y = (clientY + (isViewportOnly ? 0 : scrollY)) * actualScaleY;
 
   const px = Math.floor(x);
   const py = Math.floor(y);

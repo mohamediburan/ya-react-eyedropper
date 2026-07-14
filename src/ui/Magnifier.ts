@@ -109,9 +109,14 @@ export class Magnifier {
     this.ctx.clip();
 
     // Source coordinates from original canvas
-    const dpr = window.devicePixelRatio || 1;
-    const sx = (this.lastX + (this.isViewportOnly ? 0 : window.scrollX)) * dpr;
-    const sy = (this.lastY + (this.isViewportOnly ? 0 : window.scrollY)) * dpr;
+    const actualScaleX = this.originalCanvas.width / document.documentElement.scrollWidth;
+    const actualScaleY = this.originalCanvas.height / document.documentElement.scrollHeight;
+    
+    const scrollX = typeof window.visualViewport !== 'undefined' && window.visualViewport !== null ? window.visualViewport.pageLeft : window.scrollX;
+    const scrollY = typeof window.visualViewport !== 'undefined' && window.visualViewport !== null ? window.visualViewport.pageTop : window.scrollY;
+
+    const sx = (this.lastX + (this.isViewportOnly ? 0 : scrollX)) * actualScaleX;
+    const sy = (this.lastY + (this.isViewportOnly ? 0 : scrollY)) * actualScaleY;
 
     const px = Math.floor(sx);
     const py = Math.floor(sy);
