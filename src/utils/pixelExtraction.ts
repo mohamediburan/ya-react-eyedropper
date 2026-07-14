@@ -8,7 +8,10 @@ export function extractPixelColor(
   const x = (clientX + (isViewportOnly ? 0 : window.scrollX)) * window.devicePixelRatio;
   const y = (clientY + (isViewportOnly ? 0 : window.scrollY)) * window.devicePixelRatio;
 
-  const data = canvasCtx.getImageData(x, y, 1, 1).data;
+  const px = Math.floor(x);
+  const py = Math.floor(y);
+
+  const data = canvasCtx.getImageData(px, py, 1, 1).data;
 
   // Convert Uint8ClampedArray [r, g, b, a] to hex
   const r = data[0].toString(16).padStart(2, "0");

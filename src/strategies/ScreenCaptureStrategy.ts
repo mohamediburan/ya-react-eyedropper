@@ -62,7 +62,8 @@ export class ScreenCaptureStrategy implements IEyeDropperStrategy {
     try {
       this.stream = await navigator.mediaDevices.getDisplayMedia({
         video: { displaySurface: "browser" } as any, // TS might not have displaySurface yet
-      });
+        preferCurrentTab: true,
+      } as any);
     } catch (err) {
       const error = new Error("PERMISSION_DENIED");
       (error as any).originalError = err;
@@ -81,8 +82,8 @@ export class ScreenCaptureStrategy implements IEyeDropperStrategy {
     });
 
     this.canvas = document.createElement("canvas");
-    this.canvas.width = window.innerWidth * window.devicePixelRatio;
-    this.canvas.height = window.innerHeight * window.devicePixelRatio;
+    this.canvas.width = this.video.videoWidth;
+    this.canvas.height = this.video.videoHeight;
 
     const ctx = this.canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) {
@@ -90,8 +91,8 @@ export class ScreenCaptureStrategy implements IEyeDropperStrategy {
     }
     this.canvasCtx = ctx;
 
-    // Draw the video frame
-    this.canvasCtx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
+    // Draw the video frame exactly 1:1
+    this.canvasCtx.drawImage(this.video, 0, 0);
 
     // Stop tracks immediately
     this.stream.getTracks().forEach((track) => track.stop());

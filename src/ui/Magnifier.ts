@@ -113,21 +113,34 @@ export class Magnifier {
     const sx = (this.lastX + (this.isViewportOnly ? 0 : window.scrollX)) * dpr;
     const sy = (this.lastY + (this.isViewportOnly ? 0 : window.scrollY)) * dpr;
 
-    // The size of the raw pixel area we want to grab from the source canvas
-    const rawSourceSize = (size / zoom) * dpr;
-    
+    const px = Math.floor(sx);
+    const py = Math.floor(sy);
+
+    // Grab an integer number of raw pixels that will cover the magnifier area
+    const cropPixels = Math.ceil(size / zoom) + 2;
+    const startX = px - Math.floor(cropPixels / 2);
+    const startY = py - Math.floor(cropPixels / 2);
+
     this.ctx.imageSmoothingEnabled = false; // Important for pixelated look
+    this.ctx.save();
+    
+    // 1. Move to the exact center of the magnifier UI
+    this.ctx.translate(size / 2, size / 2);
+    // 2. Scale by zoom
+    this.ctx.scale(zoom, zoom);
+    // 3. Move the geometric center of the targeted raw pixel to the origin
+    const offsetX = (px - startX) + 0.5;
+    const offsetY = (py - startY) + 0.5;
+    this.ctx.translate(-offsetX, -offsetY);
+
+    // Draw the integer crop
     this.ctx.drawImage(
       this.originalCanvas,
-      Math.floor(sx - rawSourceSize / 2),
-      Math.floor(sy - rawSourceSize / 2),
-      rawSourceSize,
-      rawSourceSize,
-      0,
-      0,
-      size, // We draw to CSS size because ctx is scaled by dpr
-      size,
+      startX, startY, cropPixels, cropPixels,
+      0, 0, cropPixels, cropPixels
     );
+    
+    this.ctx.restore();
 
     // Pixel grid
     if (showPixelGrid) {
